@@ -1,0 +1,24 @@
+---
+
+- name: playbook 1
+  hosts: vagrant6
+  gather_facts: false
+  become: true
+  vars:
+      var1:
+         a: 1
+         b: 2
+         c: 
+           - a
+           - b
+           - 
+             elk: stack
+             abc: d
+      
+
+  tasks:
+     - name: check ping connection with hosts
+       ping:
+
+     - name: print var1
+       debug: { msg: "var1.c.2= {{ var1.c.2 }}"   }

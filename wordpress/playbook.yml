@@ -1,0 +1,200 @@
+---
+
+- name: WordPress installation playbook
+  hosts: vagrant5
+  gather_facts: false 
+  become: true
+  vars: 
+      ansible_python_interpreter : "/usr/bin/python3"
+      mysql_pass_path: "./mysql_user_pass.txt"
+      
+
+  tasks:
+     - name: check ping connection with hosts
+       ping:
+
+# PHP
+
+     - name: add PPA repository for PHP 
+       apt_repository: repo='ppa:ondrej/php'
+
+     - name:  update apt cache 
+       apt: { update_cache: yes, cache_valid_time: 3600 }
+
+     - name:  php install 
+       apt: 
+          name: [ php, php-mysql, php-fpm, php-xml ]
+          state: present
+
+     - name:  apache remove 
+       apt: { name: apache2*, state: absent, purge: yes }
+
+# MySQL
+
+     - name: mysql install
+       apt: 
+         name: [ mysql-server ]
+         state: present
+
+     - name: python drivers to connect mysql  install
+       apt: 
+         name: [ python-mysqldb, python-pymysql, python3-mysqldb, python3-pymysql ]
+         state: present
+
+     - name: mysql systemd service set to autostart 
+       systemd: { name: mysql, enabled: yes }
+
+
+     - name: mysql service start
+       systemd: { name: mysql, state: started }
+
+     - name: mysql check connection
+       mysql_info: { login_unix_socket: /var/run/mysqld/mysqld.sock }
+
+
+     - name: mysql remove anonymous users
+       mysql_user:
+          name: ""
+          state: absent 
+          login_unix_socket: /var/run/mysqld/mysqld.sock
+
+     - name: mysql remove test database
+       mysql_db: 
+         name: test
+         state: absent
+         login_unix_socket: /var/run/mysqld/mysqld.sock
+
+
+     - name: mysql root generate new password
+       set_fact:  
+              var1: "{{ lookup ('password', '{{ mysql_pass_path }} length=10') }}"
+       
+
+     - name: mysql root print new password 
+       debug: { msg: "{{ var1 }}" }
+       
+
+     - name: mysql change root@localhost password 
+       mysql_user:
+          name: root
+          password: "{{ var1 }}"
+          host: "{{ item }}"
+          state: present
+          login_unix_socket: /var/run/mysqld/mysqld.sock
+       with_items:
+            - localhost
+       register: root_pass
+
+     - name: save  .my.cnf on remote host
+       template:
+         src: templates/mysql/my.cnf
+         dest: /root/.my.cnf
+       when: root_pass.changed
+
+
+     - name: mysql change root@*  password
+       mysql_user:
+          name: root
+          password: "{{ var1 }}"
+          host: "{{ item }}"
+          state: present
+          login_unix_socket: /var/run/mysqld/mysqld.sock
+       with_items:
+            - ::1
+            - "{{ inventory_hostname }}"
+            - 127.0.0.1
+       when: root_pass.changed
+
+
+     - name: nginx install
+       apt: { name: nginx, state: present }
+
+     - name: nginx start
+       service: {name: nginx, state: started }
+
+
+     - name: nginx systemd service set to autostart 
+       systemd: { name: nginx, enabled: yes }
+
+
+     - name: nginx read default website config
+       shell: cat /etc/nginx/sites-available/default
+       register: nginx_default
+       changed_when: false
+
+
+     - name: nginx delete default website config
+       file: { path: /etc/nginx/sites-available/default, state: absent }
+       when: nginx_default.stdout.find('book.example.com') == -1
+
+
+     - name: nginx copy default website config
+       template: { src: templates/nginx/default, dest: /etc/nginx/sites-available/default }
+       when: nginx_default.stdout.find('book.example.com') == -1
+       notify: nginx service restart
+
+
+
+
+
+# WordPress
+
+     - name: wordpress distributive  file  copy to remote host
+       copy: { src: files/wordpress.tar.gz, dest: /tmp/wordpress.tar.gz,  force: no }
+
+
+     - name: wordpress unzip
+       unarchive: { src: /tmp/wordpress.tar.gz, dest: /tmp, copy: no, creates: /tmp/wordpress/wp-settings.php }
+
+
+     - name: wordpress create folder on nginx
+       file: { dest: /var/www/book.example.com, state: directory }
+
+
+     - name: wordpress copy files to nginx 
+       command: >
+          cp -a /tmp/wordpress/. /var/www/book.example.com
+          creates=/var/www/book.example.com/wp-settings.php
+
+
+     - name: wordpress, create mysql database for it
+       mysql_db: { name: wordpress, state: present }
+
+     - name: wordpress, create mysql user for it
+       mysql_user: { name: wordpress, host: localhost, password: bananas, priv: "wordpress.*:ALL" }
+
+     - name: wordpress, copy wp-config.php to remote host
+       template: { src: templates/wordpress/wp-config.php, dest: /var/www/book.example.com/wp-config.php }
+       notify: nginx service restart
+
+     - name: wordpress, check if mysql database "wordpress" already exists
+       command: mysql -u root wordpress -e "SELECT ID FROM wordpress.wp_users LIMIT 1;"
+       register: db_exists
+       ignore_errors: true
+       changed_when: false
+
+#     - name: print db_exists variable
+#       debug: { msg: "db_exists={{ db_exists }}" }
+
+     - name: wordpress, copy mysql backup database
+       copy: { src: files/wp-database.sql, dest: /tmp/wp-database.sql, force: no }
+       when: db_exists.rc != 0
+
+
+     - name: wordpress, restore mysql database from backup
+       mysql_db: { target: /tmp/wp-database.sql, state: import, name: wordpress }
+       when: db_exists.rc != 0
+
+     - name: wordpress, print login\password to enter wordpress
+       debug: { msg: "WordPress is successfully installed! login: vagrant5-user, pass: vagrant5" }
+       
+
+  handlers:
+     - name: nginx service restart
+       service: { name: nginx, state: restarted }
+       
+
+
+
+
+
