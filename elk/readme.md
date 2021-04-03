@@ -63,7 +63,9 @@ How to make it work:
 
 
 6.the installation is complete. whats next?
+
      -  check if elastic is working
+     
         #  curl localhost:9201
 
      - check if index with the name "logstash*" exists on elastic
