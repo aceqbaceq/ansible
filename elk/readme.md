@@ -4,7 +4,7 @@ Intro:
   -  The project is designed to put  files/flights/flights.log to elasticsearch and   visualize its fields in kibana.
   -  The project uses vagrant to create VM and ansible to provision software stack.
 
-The software stask:
+The software stak:
   - Vagrant
   - Elasticsearch
   - Logstash
