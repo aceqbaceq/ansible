@@ -1,0 +1,25 @@
+
+filebeat.inputs:
+
+- type: log
+  enabled: true
+  paths:
+    - "/var/log/flights.log"
+
+
+output.logstash:
+  hosts: ["localhost:5044"]
+
+
+logging:
+  level: info
+  to_files: true
+  to_syslog: false
+  json: true
+  files:
+    path: '/var/log/filebeat'
+    name: 'filebeat'
+    keepfiles: '3'
+    permissions: '0644'
+
+

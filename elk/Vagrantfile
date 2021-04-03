@@ -1,0 +1,33 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+VAGRANTFILE_API_VERSION = "2"
+
+
+
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+     # use the same key for every machine
+     config.ssh.insert_key = false
+
+  config.vm.box = "ubuntu/xenial64"
+
+
+
+  config.vm.define "elk" do |elk|
+    elk.vm.network :private_network, ip: "192.168.61.17"
+    elk.vm.network "forwarded_port", guest: 9200, host: 9201
+    elk.vm.network "forwarded_port", guest: 5601, host: 5601
+
+          elk.vm.provider "virtualbox" do |hw|
+            hw.memory = "5000"
+            hw.cpus = 4
+          end
+  end
+
+
+
+
+end
+
+

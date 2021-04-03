@@ -1,0 +1,144 @@
+---
+
+- name: play - install elk and parse flights.log
+  hosts: elk
+  become: yes
+  remote_user: vagrant
+
+  handlers:
+    - name: update timezone
+      command: dpkg-reconfigure --frontend noninteractive tzdata
+    - name: restart kibana
+      service:
+        name: kibana
+        state: restarted
+    - name: restart elasticsearch
+      service:
+        name: elasticsearch
+        state: restarted
+    - name: restart logstash
+      service:
+        name: logstash
+        state: restarted
+    - name: restart filebeat
+      service:
+        name: filebeat
+        state: restarted
+
+
+  tasks:
+    - name: install support packages
+      apt:
+         name: mc
+         state: present
+         update_cache: yes
+
+
+    - name: set timezone variables
+      file:
+        src: /usr/share/zoneinfo/Europe/Moscow
+        dest: /etc/localtime
+        state: link
+      notify:
+        - update timezone
+
+
+    - name: copy flights.log file
+      copy: 
+        src: files/flights/flights.log
+        dest: /var/log/flights.log
+        remote_src: no
+      
+
+
+    - name: add elastic repo gpg key
+      apt_key:
+         url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+         state: present
+
+
+
+    - name: add elastic repo
+      apt_repository:
+        repo: deb https://artifacts.elastic.co/packages/7.x/apt stable main
+        state: present
+        update_cache: yes
+
+    - name: install elasticsearch package
+      apt:
+        name: elasticsearch
+        state: present
+
+
+    - name: copy elasticsearch config
+      copy: 
+        src: files/elasticsearch/elasticsearch.yml
+        dest: /etc/elasticsearch/elasticsearch.yml
+        remote_src: no
+      notify: restart elasticsearch
+
+    - name: start elastic service and enable it on boot
+      service:
+        name: elasticsearch
+        enabled: yes
+        state: started
+
+
+    - name: install kibana package
+      apt:
+        name: kibana
+        state: present
+
+    - name: copy kibana config
+      copy:
+        src: files/kibana/kibana.yml
+        dest: /etc/kibana/kibana.yml
+        remote_src: no
+      notify: restart kibana
+
+    - name: start kibana service and enable  it on boot
+      service:
+        name: kibana
+        enabled: yes
+        state: started
+
+
+    - name: install logstash package
+      apt:
+        name: logstash
+        state: present
+
+    - name: copy logstash config
+      copy: 
+        src: files/logstash/first-pipeline.conf
+        dest: /etc/logstash/conf.d/first-pipeline.conf
+        remote_src: no
+      notify: restart logstash
+
+    - name: start logstash service and enable  it on boot
+      service:
+        name: logstash
+        enabled: yes
+        state: started
+
+
+    - name: install filebeat package
+      apt:
+        name: filebeat
+        state: present
+
+
+    - name: copy filebeat config
+      copy: 
+        src: files/filebeat/filebeat.yml
+        dest: /etc/filebeat/filebeat.yml
+        remote_src: no
+      notify: restart filebeat
+
+    - name: start filebeat service and enable it on boot
+      service:
+        name: filebeat
+        enabled: yes
+        state: started
+
+
