@@ -93,7 +93,7 @@ How to make it work:
 
      - select "comfort_class.keyword" and drag and drop to "Stacked bar" area
 
-     - congratulations ! You' ve gottent the visualization
+     - congratulations ! You' ve gotten the visualization
 
 
 In case you are wondering:
