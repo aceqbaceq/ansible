@@ -62,7 +62,7 @@ How to make it work:
     elk                        : ok=23   changed=22   unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
 
 
-6.the installation is complete. whats next?
+7. the installation is complete. whats next?
 
      -  check if elastic is working
      
