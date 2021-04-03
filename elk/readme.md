@@ -96,6 +96,7 @@ How to make it work:
 
 In case you are wondering:
    What actually happens under the bonet:
+   
       - ansible:
            - installs elasticsearch, kibana, logstash, filebeat
            - copy config files
