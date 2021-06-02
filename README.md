@@ -10,6 +10,7 @@ to contribute :
     
     $ git commit -m "comment smth here"
     
-    $ git push git@github.com:aceqbaceq/ansible.git master
+    $ git push  git@github.com:aceqbaceq/ansible.git main:master
+
 
 
