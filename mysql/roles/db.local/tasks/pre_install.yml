@@ -1,0 +1,12 @@
+
+- name: install support packages
+  apt:
+     name: 
+        - python-mysqldb
+        - python3-mysqldb
+        - mysql-client
+        - mc
+     state: present
+     update_cache: yes
+     cache_valid_time: 3600
+

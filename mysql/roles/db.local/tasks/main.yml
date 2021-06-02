@@ -1,0 +1,5 @@
+---
+# tasks file for db.local
+
+- include: pre_install.yml
+- include: my_sql.yml

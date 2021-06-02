@@ -1,0 +1,4 @@
+---
+# defaults file for db.local
+
+mysql_root_pass: '123'

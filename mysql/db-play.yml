@@ -1,0 +1,13 @@
+---
+
+
+- name: install db
+  hosts: db
+  roles:
+    - role: db.local
+      mysql_root_pass: '1qa1'
+
+  tasks:
+     - name: mysql server installation/update status
+       debug:
+          msg: " installation/update status [SUCCESS] "
