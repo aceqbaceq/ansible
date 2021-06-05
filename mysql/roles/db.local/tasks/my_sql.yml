@@ -38,6 +38,9 @@
   template:
        src: my.cnf.yml
        dest: /root/.my.cnf
+       owner: root
+       mode: 0600
+
 
 
 
