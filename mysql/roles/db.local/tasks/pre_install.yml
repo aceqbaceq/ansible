@@ -2,6 +2,7 @@
 - name: install support packages
   apt:
      name: 
+        - python-apt
         - python-mysqldb
         - python3-mysqldb
         - mysql-client
