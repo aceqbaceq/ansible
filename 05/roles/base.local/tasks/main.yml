@@ -1,0 +1,18 @@
+---
+# tasks file for base.local
+
+- name: install epel package on CentOS
+  yum:
+     name:
+        - epel-release
+     state: present
+     update_cache: yes
+  when:
+    - ansible_distribution == 'CentOS'
+
+
+
+- name: install libselinux-python
+  yum:
+    name: libselinux-python
+    state: present

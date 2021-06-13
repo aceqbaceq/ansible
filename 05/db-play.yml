@@ -1,0 +1,32 @@
+---
+
+
+- name: install db
+  hosts: db2
+  roles:
+    - role: db.local
+      mysql_root_pass:  "{{ lookup('ini', 'mysql_root_pass type=properties file=./vars/vars.yml') }}"
+
+
+  handlers:
+     - name: restart mysql
+       service: 
+           name: mysql
+           state: restarted
+
+  tasks:
+     - name: make mysql listen all the net interfaces
+       template:
+          src: mysql.cnf.yml
+          dest: /etc/mysql/mysql.cnf
+          owner: root
+          group: root
+          mode: 0644
+       notify: restart mysql
+
+
+     - name: mysql server installation/update status
+       debug:
+          msg: " installation/update status [SUCCESS] "
+
+

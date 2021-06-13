@@ -1,0 +1,44 @@
+---
+
+- name: prepare databases for appsever install
+  hosts: db_servers
+  vars:
+    rails_pass:   "{{ lookup('ini', 'rails_pass type=properties file=./vars/vars.yml') }}"
+    rails_user:   "{{ lookup('ini', 'rails_user type=properties file=./vars/vars.yml') }}"
+    rails_database:  "{{ lookup('ini', 'rails_datbase type=properties file=./vars/vars.yml') }}"
+
+  tasks:
+     - name: create database    {{  rails_database }}
+       mysql_db:
+          name: "{{  rails_database }}"
+          state: present
+
+     - name: create mysql user {{ rails_user }} with full permissions on {{ rails_database }} database
+       mysql_user:
+          name: "{{ rails_user }}"
+          password: "{{ rails_pass }}"
+          host: "{{ hostvars[item].ansible_ssh_host }}"
+          state: present
+          login_unix_socket: "/run/mysqld/mysqld.sock"
+          priv: '{{rails_database}}.*:ALL'
+       with_items:
+         - "{{ groups.app_servers }}"
+       no_log: true
+
+
+
+
+
+
+- name: install appserver play
+  hosts: app_servers
+  roles:
+    - appserver.local
+
+  tasks:
+     - name: app server installation/update status
+       debug:
+          msg: " installation/update status [SUCCESS] "
+
+
+

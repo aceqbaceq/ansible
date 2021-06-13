@@ -1,0 +1,7 @@
+
+
+- name: database install
+  import_playbook: db-play.yml
+
+- name: app server install
+  import_playbook: appserver-play.yml

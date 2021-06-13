@@ -1,0 +1,7 @@
+dependencies: 
+    - base.local
+    - role: mysql_prepare.local
+    - role: epel.local
+    - ansible-role-ruby-master
+
+  

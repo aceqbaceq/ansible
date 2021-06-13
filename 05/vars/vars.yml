@@ -1,0 +1,9 @@
+
+mysql_root_pass=123
+
+rails_user=rails
+rails_pass=456
+rails_database=rails
+
+
+

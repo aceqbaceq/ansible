@@ -1,0 +1,15 @@
+centos
+
+
+
+[db_servers]
+db2
+
+[app_servers]
+centos
+
+
+
+
+
+

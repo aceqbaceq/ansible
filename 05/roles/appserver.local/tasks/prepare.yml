@@ -1,0 +1,14 @@
+
+- name: install support packages for appserver
+  yum:
+     name:  
+       - git
+       - ruby-devel
+       - gcc
+       - libxml2-devel
+       - patch
+       - sqlite-devel
+       - mysql-devel
+       - gcc-c++
+
+

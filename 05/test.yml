@@ -1,0 +1,49 @@
+---
+
+#- name: play - gatther all the facts from all hosts
+#  hosts: all
+#  tasks:
+
+
+- name: play 1
+  hosts: db2
+
+
+  tasks:
+
+    - name: save hostvars to a file /tmp/1.txt
+      copy:
+          content: "{{ hostvars }}"
+          dest: /tmp/1.txt
+          remote_src: no
+    #  delegate_to: 127.0.0.1
+    #  become: yes
+
+    - name: print app_servers hosts
+      debug:
+        msg: "{{ groups.app_servers }}"
+
+
+    - name: print ssh ip addrress for hosts in app_servers group
+      debug:
+          var: hostvars[item].ansible_ssh_host
+      with_items:
+         - "{{ groups.app_servers  }}"
+
+#    - name: Gather facts from db servers
+#      setup:
+#      delegate_to: "{{ item }}"
+#      delegate_facts: true
+#      with_items: 
+#         - "{{ groups['app_servers'] }}"
+
+
+    - name: task
+      debug:
+         var:  hostvars[item].ansible_ssh_host
+      delegate_to: app_servers
+      with_items:
+         - "{{ groups.app_servers }}"
+
+
+

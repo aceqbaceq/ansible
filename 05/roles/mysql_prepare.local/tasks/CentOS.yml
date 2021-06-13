@@ -1,0 +1,23 @@
+
+- name: install epel package on CentOS
+  yum:
+     name:
+        - epel-release
+     state: present
+     update_cache: yes
+  when:
+    - ansible_distribution == 'CentOS'
+
+
+- name: install some additional packages on CentOS
+  yum:
+     name:
+        - MySQL-python
+        - mysql
+        - mc
+     state: present
+     update_cache: yes
+  when:
+    - ansible_distribution == 'CentOS'
+
+
