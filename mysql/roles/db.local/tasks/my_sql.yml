@@ -21,6 +21,7 @@
      name: root
      password: "{{ mysql_root_pass }}"
      host: "{{ item }}"
+     priv: "*.*:ALL,GRANT"
      login_unix_socket: /run/mysqld/mysqld.sock
 #     login_password: "1 "
 #     login_user: root
