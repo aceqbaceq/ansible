@@ -1,0 +1,35 @@
+---
+
+- name: play1
+  hosts: kub2_data_nodes
+  become: yes
+  vars_files: 
+       - vars/vars.yml
+
+  tasks:
+    - name: check if all hosts are online 
+      ping:
+
+    - name: UNmount LVM lvols to the folders
+      mount:
+        src: "/dev/{{ vg_name }}/{{ item  }}"
+        path: "{{ kub_mount_dir }}/{{ lvol_subdir }}/{{ item }}"
+        fstype: "{{ lvol_fstype }}"
+        opts: errors=remount-ro,data=journal
+        state: absent
+      with_items: "{{ lvol_names }}"
+
+
+    - name: delete new LVM lvols
+      lvol: 
+        vg: "{{ vg_name }}"
+        lv: "{{ item }}"
+        size: "{{ lvol_size }}"
+        state: absent
+        force: yes
+      with_items: "{{ lvol_names }}"
+          
+
+
+
+

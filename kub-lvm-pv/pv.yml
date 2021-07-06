@@ -1,0 +1,56 @@
+- name: 'play2: apply local provisioner'
+  max_fail_percentage: 0
+  hosts: localhost
+  become: false
+  vars_files:
+       - vars/vars.yml
+
+
+
+  tasks:
+    - name: create a temp directory in /tmp with random name
+      tempfile:
+         state: directory
+         path: /tmp
+      register: temp_dir
+      changed_when: false
+
+#    - name: print the path to the temp directory
+#      debug:
+#        var: temp_dir.path
+
+
+
+    - name: Get some k8 manifest files from  local provisioner in git to localhost
+      shell:
+                "git archive --format=tar --remote=git@test-git-01:git-repo-01.git
+                HEAD:kub-02/local-provisioner-2/ -- {{ item }} | tar xO > {{ temp_dir.path }}/{{ item }}"
+      changed_when: false
+      with_items:
+           "{{ local_provisioner_files }}"
+
+
+
+    - name: 'apply downloaded manifests of local provisioner to k8'
+      command: "kubectl apply -f {{ temp_dir.path }}/{{ item }}"
+      register: kubectl_output
+      changed_when: false
+      with_items:
+          "{{ local_provisioner_files }}"
+
+
+
+    - name: print info
+      debug:
+         var: kubectl_output.results[0].stdout_lines
+      changed_when: true
+
+
+    - name: delete temp directory
+      file:
+        state: absent
+        path: "{{ temp_dir.path }}"
+      changed_when: false
+
+
+

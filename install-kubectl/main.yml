@@ -1,0 +1,101 @@
+---
+
+- name: 'play: install kubectl and k8 key' 
+  hosts: test-ansible
+  become: yes
+  max_fail_percentage: 0
+  vars_files:
+     - vars/vars.yml
+
+
+  tasks:
+    - name: check if all hosts are online
+      ping:
+
+    - name: print some vasr
+      debug:
+        var: ansible_ssh_user
+
+    - name: install apt-transport-https
+      apt:
+        name: apt-transport-https
+        state: present
+        update_cache: yes
+        cache_valid_time: 3600
+
+
+    - name: add key to apt
+      apt_key:
+         url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+         state: present
+
+
+    - name: add apt repo
+      apt_repository:
+         repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+         state: present
+
+
+    - name: install kubectl itself
+      apt:
+        name: kubectl 
+        state: present
+        update_cache: yes
+        cache_valid_time: 3600
+  
+
+
+    - name: create rand folder in /tmp on ansible host
+      tempfile:
+        path: /tmp
+        state: directory
+        prefix: k8
+      become: no
+      delegate_to: 127.0.0.1
+      register: tmp_dir
+
+
+    - name: print tmp_dir
+      debug:
+         msg: "{{ tmp_dir.path }}"
+
+
+    - name: get k8 key from '[{{ kub_key_host }}]' to ansible host
+      fetch:
+          src: /etc/kubernetes/admin.conf
+          dest: "{{ tmp_dir.path }}/"
+          flat: yes
+      become: yes
+      delegate_to: "{{ kub_key_host }}"
+
+
+
+    - name: create /home/{{ansible_ssh_user}}/.kube dir
+      file:
+        state: directory
+        owner: "{{ ansible_ssh_user }}"
+        group: "{{ ansible_ssh_user }}"
+        path: "/home/{{ansible_ssh_user}}/.kube"
+        mode: 0700
+      become: no
+    
+
+    - name: copy k8 key from ansible host to '[{{ inventory_hostname }}]'
+      copy:
+         src: "{{ tmp_dir.path }}/admin.conf"
+         dest: "/home/mkadm/.kube/config"
+      become: no
+
+    - name: delete /tmp dir with k8 key on ansible host
+      file:
+         state: absent
+         path: "{{ tmp_dir.path }}/"
+      delegate_to: 127.0.0.1
+
+
+
+
+
+
+
+

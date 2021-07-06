@@ -1,0 +1,91 @@
+---
+
+- name: 'play1: create LVM mountpoint'
+  max_fail_percentage: 0
+  hosts: kub2_data_nodes
+  become: yes
+  vars_files: 
+       - vars/vars.yml
+
+
+
+  tasks:
+    - name: check if all hosts are online 
+      ping:
+
+    - name: install needed packages
+      apt: 
+        pkg:
+           - scsitools
+           - sg3-utils
+        state: present
+
+    - name: "rescan scsi bus"
+      command: /sbin/rescan-scsi-bus
+      register: vasya
+      changed_when: false
+
+
+    - name: get fdisk info
+      shell: 'fdisk -l | grep /dev/sd'
+      register: vasya
+      changed_when: false
+
+    - name: print fdisk info
+      debug:
+         var: vasya.stdout
+
+
+    - name: extend LVM vg {{vg_name}}
+      lvg:
+        vg: "{{ vg_name }}"
+        pvs: "{{ pv_names }}"
+
+
+    - name: create new LVM lvols
+      lvol: 
+        vg: "{{ vg_name }}"
+        lv: "{{ item }}"
+        size: "{{ lvol_size }}"
+        state: present
+      with_items: "{{ lvol_names }}"
+          
+
+    - name: create folder   {{ kub_mount_dir}}/{{ lvol_subdir }}
+      file:
+         state: directory
+         owner: root
+         group: root
+         mode: 0755
+         path: "{{ kub_mount_dir }}/{{ lvol_subdir }}"
+
+
+    - name: create folders for mount point for new LVM lvols 
+      file:
+         path: "{{ kub_mount_dir }}/{{ lvol_subdir }}/{{ item }}"
+         state: directory
+         owner: "{{ lvol_mount_point_owner  }}"
+         group: "{{ lvol_mount_point_group }}"
+         mode: 0755
+      with_items: "{{ lvol_names }}"
+
+    - name: format LVM lvols if they hasnt
+      filesystem:
+          fstype: "{{ lvol_fstype }}"
+          dev: "/dev/{{ vg_name }}/{{ item  }}"
+          force: no
+      with_items: "{{ lvol_names }} "
+
+
+    - name: mount LVM lvols to the folders and make entries in /etc/fstab
+      mount:
+        src: "/dev/{{ vg_name }}/{{ item  }}"
+        path: "{{ kub_mount_dir }}/{{ lvol_subdir }}/{{ item }}"
+        fstype: "{{ lvol_fstype }}"
+        opts: errors=remount-ro,data=journal
+        state: mounted
+      with_items: "{{ lvol_names }}"
+
+
+
+

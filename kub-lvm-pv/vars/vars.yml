@@ -1,0 +1,30 @@
+vg_name: vg01
+pv_names: "/dev/sdb1,/dev/sdc,/dev/sdd"
+kub_mount_dir: "/var/lib/kubernetes-PV-folder"
+
+lvol_names:
+  - '2g-1'
+  - '2g-2'
+  - '2g-3'
+  - '4'
+  - '5'
+#lvol_size: 2G
+
+#lvol_params:
+#            - 100m: [1, 2, 3]
+#            - 1G: [1, 2]
+#            - 2G: [1, 2, 3, 4]
+
+
+
+lvol_subdir: "{{ lvol_size }}"
+lvol_mount_point_owner: noroot
+lvol_mount_point_group: noroot
+lvol_fstype: ext4
+
+local_provisioner_files:
+         - provisioner_generated.yaml
+         - sc.yaml
+
+
+
