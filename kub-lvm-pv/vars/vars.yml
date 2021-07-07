@@ -7,7 +7,7 @@ kub_mount_dir: "/var/lib/kubernetes-PV-folder"
 
 vols_num_100m: 10
 vols_num_2G: 9
-
+vols_num_1G: 9
 
 
 lvol_mount_point_owner: noroot

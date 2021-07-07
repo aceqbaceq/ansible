@@ -4,9 +4,17 @@
       with_sequence: start=1 end={{ vols_num_2G }}
       no_log: true
       register: items_list_2G
-
     - set_fact:
         sequence_2G: "{{ items_list_2G.results | map(attribute='item') |  list }}"
+
+
+    - name: generate sequence items for 1G
+      debug: msg=""
+      with_sequence: start=1 end={{ vols_num_1G }}
+      no_log: true
+      register: items_list_1G
+    - set_fact:
+        sequence_1G: "{{ items_list_1G.results | map(attribute='item') |  list }}"
 
 
     - name: generate sequence items for 100m
@@ -14,9 +22,10 @@
       with_sequence: start=1 end={{ vols_num_100m }}
       no_log: true
       register: items_list_100m
-
     - set_fact:
         sequence_100m: "{{ items_list_100m.results | map(attribute='item') |  list }}"
+
+
 
 
 
@@ -25,8 +34,11 @@
          temp_vols:
            - size: 2G
              mount_p: "{{ sequence_2G }}" 
+           - size: 1G
+             mount_p: "{{ sequence_1G }}" 
            - size: 100m
              mount_p: "{{ sequence_100m }}"
+
 
 
     - name: list groups for user that have them, dont error if they don't

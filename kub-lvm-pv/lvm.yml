@@ -61,8 +61,8 @@
       file:
          path: "{{ kub_mount_dir }}/{{ item[0].size }}/{{ item[0].size }}-{{ item[1] }}"
          state: directory
-         owner: "root"
-         group: "root"
+         owner: "{{ lvol_mount_point_owner }}"
+         group: "{{ lvol_mount_point_group }}"
          mode: 0755
       with_list: "{{ lvm_vols }}"
 
@@ -83,6 +83,15 @@
         state: mounted
       with_list: "{{ lvm_vols }}"
 
+
+    - name: set proper perms for   mount point for new LVM lvols 
+      file:
+         path: "{{ kub_mount_dir }}/{{ item[0].size }}/{{ item[0].size }}-{{ item[1] }}"
+         state: directory
+         owner: "{{ lvol_mount_point_owner }}"
+         group: "{{ lvol_mount_point_group }}"
+         mode: 0755
+      with_list: "{{ lvm_vols }}"
 
 
 
