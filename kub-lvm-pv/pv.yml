@@ -24,7 +24,7 @@
     - name: Get some k8 manifest files from  local provisioner in git to localhost
       shell:
                 "git archive --format=tar --remote=git@test-git-01:git-repo-01.git
-                HEAD:kub-02/local-provisioner-2/ -- {{ item }} | tar xO > {{ temp_dir.path }}/{{ item }}"
+                HEAD:kub-cluster-2/local-provisioner-2/ -- {{ item }} | tar xO > {{ temp_dir.path }}/{{ item }}"
       changed_when: false
       with_items:
            "{{ local_provisioner_files }}"

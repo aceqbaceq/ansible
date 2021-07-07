@@ -1,23 +1,15 @@
+current_working_set: kub2_data_nodes
+
 vg_name: vg01
-pv_names: "/dev/sdb1,/dev/sdc,/dev/sdd"
+pv_names: "/dev/sdb1,/dev/sdc,/dev/sdd,/dev/sde"
 kub_mount_dir: "/var/lib/kubernetes-PV-folder"
 
-lvol_names:
-  - '2g-1'
-  - '2g-2'
-  - '2g-3'
-  - '4'
-  - '5'
-#lvol_size: 2G
 
-#lvol_params:
-#            - 100m: [1, 2, 3]
-#            - 1G: [1, 2]
-#            - 2G: [1, 2, 3, 4]
+vols_num_100m: 10
+vols_num_2G: 9
 
 
 
-lvol_subdir: "{{ lvol_size }}"
 lvol_mount_point_owner: noroot
 lvol_mount_point_group: noroot
 lvol_fstype: ext4

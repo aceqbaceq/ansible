@@ -1,0 +1,54 @@
+---
+    - name: generate sequence items for 2G
+      debug: msg=""
+      with_sequence: start=1 end={{ vols_num_2G }}
+      no_log: true
+      register: items_list_2G
+
+    - set_fact:
+        sequence_2G: "{{ items_list_2G.results | map(attribute='item') |  list }}"
+
+
+    - name: generate sequence items for 100m
+      debug: msg=""
+      with_sequence: start=1 end={{ vols_num_100m }}
+      no_log: true
+      register: items_list_100m
+
+    - set_fact:
+        sequence_100m: "{{ items_list_100m.results | map(attribute='item') |  list }}"
+
+
+
+    - name: set fact
+      set_fact:
+         temp_vols:
+           - size: 2G
+             mount_p: "{{ sequence_2G }}" 
+           - size: 100m
+             mount_p: "{{ sequence_100m }}"
+
+
+    - name: list groups for user that have them, dont error if they don't
+      debug: 
+           msg: "{{ item.0.size }} - {{ item.1 }}"
+      with_subelements:
+         - "{{ temp_vols }}"
+         - mount_p
+      no_log: true
+      register: temp2_vols
+
+
+    - name: set fact lvm_vols
+      set_fact:
+          lvm_vols: "{{ temp2_vols.results | map(attribute='item') |  list }}"
+
+#    - name: debug lvm_vols
+#      debug:
+#         msg: "obiem={{ item[0].size }}, mount_point={{ item[1] }}"
+#      with_list: "{{ lvm_vols }}"
+
+
+
+
+

@@ -2,7 +2,7 @@
 
 - name: 'play1: create LVM mountpoint'
   max_fail_percentage: 0
-  hosts: kub2_data_nodes
+  hosts: "{{ current_working_set }}"
   become: yes
   vars_files: 
        - vars/vars.yml
@@ -42,49 +42,47 @@
         pvs: "{{ pv_names }}"
 
 
+    - name: include new vars calculate tasks
+      include_tasks: new-vars.yml
+
+
+
     - name: create new LVM lvols
       lvol: 
         vg: "{{ vg_name }}"
-        lv: "{{ item }}"
-        size: "{{ lvol_size }}"
+        lv: "{{ item[0].size }}-{{ item[1] }}"
+        size: "{{ item[0].size }}"
         state: present
-      with_items: "{{ lvol_names }}"
+      with_list: "{{ lvm_vols }}"
           
-
-    - name: create folder   {{ kub_mount_dir}}/{{ lvol_subdir }}
-      file:
-         state: directory
-         owner: root
-         group: root
-         mode: 0755
-         path: "{{ kub_mount_dir }}/{{ lvol_subdir }}"
 
 
     - name: create folders for mount point for new LVM lvols 
       file:
-         path: "{{ kub_mount_dir }}/{{ lvol_subdir }}/{{ item }}"
+         path: "{{ kub_mount_dir }}/{{ item[0].size }}/{{ item[0].size }}-{{ item[1] }}"
          state: directory
-         owner: "{{ lvol_mount_point_owner  }}"
-         group: "{{ lvol_mount_point_group }}"
+         owner: "root"
+         group: "root"
          mode: 0755
-      with_items: "{{ lvol_names }}"
+      with_list: "{{ lvm_vols }}"
 
     - name: format LVM lvols if they hasnt
       filesystem:
           fstype: "{{ lvol_fstype }}"
-          dev: "/dev/{{ vg_name }}/{{ item  }}"
+          dev: "/dev/{{vg_name}}/{{ item[0].size }}-{{ item[1] }}"
           force: no
-      with_items: "{{ lvol_names }} "
+      with_list: "{{ lvm_vols }}"
 
 
     - name: mount LVM lvols to the folders and make entries in /etc/fstab
       mount:
-        src: "/dev/{{ vg_name }}/{{ item  }}"
-        path: "{{ kub_mount_dir }}/{{ lvol_subdir }}/{{ item }}"
+        src: "/dev/{{ vg_name }}/{{ item[0].size }}-{{ item[1] }}"
+        path: "{{ kub_mount_dir }}/{{ item[0].size }}/{{ item[0].size }}-{{ item[1] }}"
         fstype: "{{ lvol_fstype }}"
         opts: errors=remount-ro,data=journal
         state: mounted
-      with_items: "{{ lvol_names }}"
+      with_list: "{{ lvm_vols }}"
+
 
 
 

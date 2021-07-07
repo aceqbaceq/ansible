@@ -1,0 +1,47 @@
+---
+
+- name: delete-lvm
+  hosts: "{{ current_working_set }}"
+  become: yes
+  vars_files: 
+       - vars/vars.yml
+
+  tasks:
+    - name: check if all hosts are online 
+      ping:
+
+
+    - name: include new vars calculate tasks
+      include_tasks: new-vars.yml
+
+
+
+    - name: UNmount LVM lvols to the folders and make entries in /etc/fstab
+      mount:
+        src: "/dev/{{ vg_name }}/{{ item[0].size }}-{{ item[1] }}"
+        path: "{{ kub_mount_dir }}/{{ item[0].size }}/{{ item[0].size }}-{{ item[1] }}"
+        fstype: "{{ lvol_fstype }}"
+        opts: errors=remount-ro,data=journal
+        state: absent
+      with_list: "{{ lvm_vols }}"
+
+
+    - name: delete LVM lvols
+      lvol:
+        vg: "{{ vg_name }}"
+        lv: "{{ item[0].size }}-{{ item[1] }}"
+        size: "{{ item[0].size }}"
+        state: absent
+        force: True
+      with_list: "{{ lvm_vols }}"
+
+
+
+
+
+
+          
+
+
+
+
