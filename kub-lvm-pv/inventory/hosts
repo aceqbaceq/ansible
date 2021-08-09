@@ -1,0 +1,11 @@
+[kub2_data_nodes]
+test-kub-14
+test-kub-15
+test-kub-16
+
+[kub2_master_nodes]
+test-kub-04
+test-kub-05
+test-kub-06
+
+

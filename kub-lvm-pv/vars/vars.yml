@@ -1,0 +1,22 @@
+current_working_set: kub2_data_nodes
+
+vg_name: vg01
+pv_names: "/dev/sdb1,/dev/sdc,/dev/sdd,/dev/sde"
+kub_mount_dir: "/var/lib/kubernetes-PV-folder"
+
+
+vols_num_100m: 10
+vols_num_2G: 9
+vols_num_1G: 9
+
+
+lvol_mount_point_owner: noroot
+lvol_mount_point_group: noroot
+lvol_fstype: ext4
+
+local_provisioner_files:
+         - provisioner_generated.yaml
+         - sc.yaml
+
+
+

@@ -1,0 +1,6 @@
+
+- name: create lvm mount  points
+  include: lvm.yml
+
+- name: publish local provisionoer to k8
+  include: pv.yml
