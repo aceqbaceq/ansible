@@ -3,7 +3,7 @@
 
 
 - name: play main.yml
-  hosts: gitlab
+  hosts: gitlab-1
   roles:
     - geerlingguy.postfix
 
