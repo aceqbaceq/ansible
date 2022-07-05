@@ -1,0 +1,41 @@
+#!/bin/bash
+
+
+func_ch1 () {
+
+   if [ -v "$1" ]
+   then
+      return 0
+   else
+     return 1
+   fi
+}
+
+
+
+func_ch2 () {
+
+        if [[ "$2" != "" ]]
+        then
+           echo "Hello: $2"
+        else
+            echo "Hello: $1 is empty"
+        fi
+}
+
+
+[ -f ~/.test-task/test-task.cfg ] && source ~/.test-task/test-task.cfg
+VAR1="message"
+VAR2=${!VAR1}
+
+if func_ch1 "$VAR1"
+then
+   func_ch2  "$VAR1" "$VAR2"
+else 
+   echo "Hello: $VAR1 not found"
+fi
+
+
+
+
+

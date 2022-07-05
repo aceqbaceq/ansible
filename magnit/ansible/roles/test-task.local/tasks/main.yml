@@ -1,0 +1,23 @@
+
+- name: copy RPM package to remote
+  copy:
+    src: test-task-0.0.1-1.el7.noarch.rpm
+    dest: /tmp/test-task-0.0.1-1.el7.noarch.rpm
+    mode: '0444'
+
+- name: install test-task RPM package
+  ansible.builtin.yum:
+    name: /tmp/test-task-0.0.1-1.el7.noarch.rpm
+    state: present
+
+- name: create the directory for config file of RPM package
+  file:
+    path: ~/.test-task
+    state: directory
+    mode: '0755'
+
+- name: copy config file for RPM package
+  template:
+    src: test-task.cfg
+    dest: ~/.test-task/test-task.cfg
+    mode: '0600'

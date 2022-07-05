@@ -1,0 +1,13 @@
+---
+
+
+- name: playbook play.yml
+  hosts: cent1
+  roles:
+    - role: test-task.local
+      message: '200'
+
+  tasks:
+     - name: playbook play.yml status
+       debug:
+          msg: " installation/update status [SUCCESS] "
